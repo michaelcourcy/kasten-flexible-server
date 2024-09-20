@@ -1,0 +1,262 @@
+## app1
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app1  
+spec: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app1
+  namespace: app1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-inserter
+  template:
+    metadata:
+      labels:
+        app: data-inserter
+    spec:
+      containers:
+      - name: data-inserter
+        image: postgres:16.4
+        env:
+        - name: PGHOST
+          value: "rw.poc.postgres.database.azure.com"
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: app1
+              key: username
+        - name: PGPORT
+          value: "5432"
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: app1
+              key: dbname
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app1
+              key: password
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            while true; do
+              psql -c "INSERT INTO example_table (name) VALUES ('Sample Name');"
+              sleep 10;
+            done
+      initContainers:
+      - name: init-db
+        image: postgres:16.4
+        env:
+        - name: PGHOST
+          value: "rw.poc.postgres.database.azure.com"
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: app1
+              key: username
+        - name: PGPORT
+          value: "5432"
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: app1
+              key: dbname
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app1
+              key: password
+        command: ["sh", "-c", "psql -c \"CREATE TABLE IF NOT EXISTS example_table (id SERIAL PRIMARY KEY, name VARCHAR(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);\""]
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app1
+  namespace: app1
+  labels:
+    type: database-credential
+type: Opaque
+stringData:
+  dbname: app1db
+  username: app1
+  password: app1password
+## app2
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: app2  
+spec: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app2
+  namespace: app2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-inserter
+  template:
+    metadata:
+      labels:
+        app: data-inserter
+    spec:
+      containers:
+      - name: data-inserter
+        image: postgres:16.4
+        env:
+        - name: PGHOST
+          value: "rw.poc.postgres.database.azure.com"
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: app2
+              key: username
+        - name: PGPORT
+          value: "5432"
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: app2
+              key: dbname
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app2
+              key: password
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            while true; do
+              psql -c "INSERT INTO example_table (name) VALUES ('Sample Name');"
+              sleep 10;
+            done
+      initContainers:
+      - name: init-db
+        image: postgres:16.4
+        env:
+        - name: PGHOST
+          value: "rw.poc.postgres.database.azure.com"
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: app2
+              key: username
+        - name: PGPORT
+          value: "5432"
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: app2
+              key: dbname
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app2
+              key: password
+        command: ["sh", "-c", "psql -c \"CREATE TABLE IF NOT EXISTS example_table (id SERIAL PRIMARY KEY, name VARCHAR(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);\""]
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app2
+  namespace: app2
+  labels:
+    type: database-credential
+type: Opaque
+stringData:
+  dbname: app2db
+  username: app2
+  password: app2password
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app3
+  namespace: app2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-inserter
+  template:
+    metadata:
+      labels:
+        app: data-inserter
+    spec:
+      containers:
+      - name: data-inserter
+        image: postgres:16.4
+        env:
+        - name: PGHOST
+          value: "rw.poc.postgres.database.azure.com"
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: app3
+              key: username
+        - name: PGPORT
+          value: "5432"
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: app3
+              key: dbname
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app3
+              key: password
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            while true; do
+              psql -c "INSERT INTO example_table (name) VALUES ('Sample Name');"
+              sleep 10;
+            done
+      initContainers:
+      - name: init-db
+        image: postgres:16.4
+        env:
+        - name: PGHOST
+          value: "rw.poc.postgres.database.azure.com"
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: app3
+              key: username
+        - name: PGPORT
+          value: "5432"
+        - name: PGDATABASE
+          valueFrom:
+            secretKeyRef:
+              name: app3
+              key: dbname
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app3
+              key: password
+        command: ["sh", "-c", "psql -c \"CREATE TABLE IF NOT EXISTS example_table (id SERIAL PRIMARY KEY, name VARCHAR(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);\""]
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app3
+  namespace: app2
+  labels:
+    type: database-credential
+type: Opaque
+stringData:
+  dbname: app3db
+  username: app3
+  password: app3password

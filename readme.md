@@ -109,12 +109,14 @@ Let's do it for app1, app2 and app3. I show here for app1
 ```
 -- Create the database
 CREATE DATABASE app1db;
-
 -- Create the role without superuser privileges
 CREATE ROLE app1 WITH LOGIN PASSWORD 'app1password';
 
 -- Grant the role access to the specific database
 GRANT ALL PRIVILEGES ON DATABASE app1db TO app1;
+\c app1db
+GRANT USAGE ON SCHEMA public TO app1;
+GRANT CREATE ON SCHEMA public TO app1;
 \q
 ```
 
@@ -137,37 +139,50 @@ You should obtain
  app1
 (1 row)
 ```
-
-And check you cannot list the postgres tables for instance
-```
-\c postgres
-\d
-```
-
-Output 
-```
-Did not find any relations.
-```
-
 Redo this operation for app2 and app3.
 
+## Create applications that work with the databases 
 
-## Create applications that work with the database 
+We are going to create two namespace app1 and app2, in app1 only one workload will work with app1db and in app2 two workload will work with app2db and app3db. 
 
-We are going to create two namespace app1 and app2, in app1 only one workload will 
-work with app1db and in app2 two workload will work with app2db and app3db. 
-
-Each of this workloads will use a secret to connect to their respective database.
+Each of those workloads will use a secret to connect to their respective database.
 
 ![Workoads](./images/backup-restore-flexible-server-workload.drawio.png)
 
+```
+kubectl create -f workloads.yaml
+```
 
+Those workloads are very simple and every 10s insert a new row with a timestamp in the example_table 
+of each database.
 
 ## Install Kasten on both tenant 
 
-TODO 
+[Installing kasten]() on AKS is out of the scope but for the need of this guide 
+let's do it very quick. One your kube context point to your aks cluster just execute 
+```
+helm repo add kasten https://charts.kasten.io/
+helm repo update
+helm install k10 kasten/k10 --namespace=kasten-io --create-namespace
+``` 
+
+Checks all the pods are ready 
+```
+watch kubectl get po -n kasten-io
+```
+
+Once all the pods are ready open the UI
+```
+kubectl --namespace kasten-io port-forward service/gateway 8080:80
+```
+The dashboard will be available at http://127.0.0.1:8080/k10/#/
+
+Go to location profile and create an [immutable azure profile](https://docs.kasten.io/latest/usage/configuration.html#azure-immutability-setup). 
+
+> ***Note*** Use the same location profile for both tenant
 
 ## Install the blueprint and the blueprintbinding
+
 
 TODO 
 
