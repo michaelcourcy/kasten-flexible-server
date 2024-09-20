@@ -10,7 +10,7 @@ AKS or different AKS.
 
 ## Pain points 
 
-The native backup solution provided by azure does not satify this requirements:
+The native backup solution provided by azure does not satify those requirements:
 - Backup granulary each databases with different frequencies and retentions 
 - Garantee immutability against ransomware  
 - Provide a simple path to split and restore the databases on different tenants
@@ -18,20 +18,26 @@ The native backup solution provided by azure does not satify this requirements:
 
 ## Proposal solution 
 
-Use kasten to backup the AKS application and extends the backup of the databse credential secret 
+Use kasten to backup the AKS application and extends the backup of the database credential secret 
 to lauch a pg_dump on the database. This dump will be included in the restore point created by Kasten. Kasten will be configured to create immutable backup, making the backup encrypted and ransomware proof. 
 
-Because we're going to use the version-level immutability of azure blob container. Even a rogue 
+Because we're going to use the version-level immutability of azure blob container, even a rogue 
 admin won't be able to destroy the backup if disaster recovery is enabled.
 
 # Architecture 
 
-## Prequisite 
+## Prerequisite 
 
 Having an AKS cluster or any kubernetes cluster on Azure that connect privately to 
 a postgres flexible cluster and his read replica. 
 
 How we build this on Azure is out of the scope of this guide.
+
+### About database resolution 
+
+Use the same private DNS zone in the Vnet so that you resolve the database the same way.
+For instance in my lab the primary database resolve as rw.poc.postgres.database.azure.com
+the read replica resolve as ro.poc.postgres.database.azure.com in both tenants.
 
 ## Backup 
 
@@ -45,7 +51,7 @@ on the read replica and not directly on the primary database.
 3. The blueprint launch a pod that will execute the blueprint commands
 4. the pod do a pg_dump on the read replica
 5. The database return the dump 
-6. The pod send the dump on an storage account where version-level immutability is enabled as
+6. The pod send the dump on an storage account (where version-level immutability is enabled) as
 a kopia snapshot, the kopia snapshot identifier is included in the Kasten restorepoint.
 
 ## Restore 
@@ -67,35 +73,105 @@ and the encryption key managed by Kasten
 ![Restore other tenant](./images/backup-restore-flexible-server-restore-another-tenant.drawio.png)
 
 We import the restore point in kasten from the azure container first then we launch a restore. The 
-process is the same. 
+process is the same. The import of the restore point is not shown in the diagram but this is 
+accomplished with a classic migration policy.
 
 The domain that point to the database will be the same in both tenant because we use a private DNS 
 and for this reason we can use the same name. Hence no need to change the blueprint when the tenant 
 change.
 
-Each database in the flexible server is mapped to a secret in a namespace that has
-the label `database-access=true`. 
+# Implementation 
 
-A blueprintbinding 
+## Prepare the databases 
+
+We are going to create 3 databases with for each it's own user: app1, app2 and app3. 
+Use your flexible credential to access the rw instance throug a pod
 ```
-todo
+ az aks get-credentials --resource-group <your resource group> --name <your cluster name>
+ kubectl create ns app1
+ kubectl config set-context --current --namespace=app1
+ kubectl run --image postgres:16.4 pg -- tail -f /dev/null
+ kubectl exec -it pg -- bash 
+ export PGHOST=rw.poc.postgres.database.azure.com
+ export PGUSER=myadmin
+ export PGPORT=5432
+ export PGDATABASE=postgres
+ export PGPASSWORD='<your admin password>'
+ psql
 ```
-associate the blueprint `todo.yaml` to the secret. 
 
-Each time the secret is backed up by kasten a `pg_dump` action for this database is operated.
+Adapt `poc.postgres.database.azure.com` to your private dns zone.
 
-Each time the secret is restored by kasten a `psql < dump-database.sql` is executed for this database.
 
-You can backup and restore your databases on this instance granulary by granulary backup and restore secret
-with Kasten.
+Now that you are using the psql shell you can create 3 databases with the 3 administrators.
+Let's do it for app1, app2 and app3. I show here for app1 
 
-# Security 
+```
+-- Create the database
+CREATE DATABASE app1db;
 
-The dump are sent encrypted to the storage account using immutable backup. You are ransomware proof now.
+-- Create the role without superuser privileges
+CREATE ROLE app1 WITH LOGIN PASSWORD 'app1password';
 
-# Migration 
+-- Grant the role access to the specific database
+GRANT ALL PRIVILEGES ON DATABASE app1db TO app1;
+\q
+```
 
-In another tenant the private dns are the same so if the restore is using the same domain it's actually pointing
-to another database making your database migration trivial between tenants.
+Check you're able to connect as app1
+```
+export PGUSER=app1
+export PGPASSWORD='app1password'
+psql
+```
 
+Check the current user 
+```
+SELECT current_user;
+```
+
+You should obtain 
+```
+ current_user 
+--------------
+ app1
+(1 row)
+```
+
+And check you cannot list the postgres tables for instance
+```
+\c postgres
+\d
+```
+
+Output 
+```
+Did not find any relations.
+```
+
+Redo this operation for app2 and app3.
+
+
+## Create applications that work with the database 
+
+We are going to create two namespace app1 and app2, in app1 only one workload will 
+work with app1db and in app2 two workload will work with app2db and app3db. 
+
+Each of this workloads will use a secret to connect to their respective database.
+
+![Workoads](./images/backup-restore-flexible-server-workload.drawio.png)
+
+
+
+## Install Kasten on both tenant 
+
+TODO 
+
+## Install the blueprint and the blueprintbinding
+
+TODO 
+
+# Backup, Restore, Migrate 
+
+TODO 
 
