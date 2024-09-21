@@ -179,14 +179,49 @@ The dashboard will be available at http://127.0.0.1:8080/k10/#/
 
 Go to location profile and create an [immutable azure profile](https://docs.kasten.io/latest/usage/configuration.html#azure-immutability-setup). 
 
-> ***Note*** Use the same location profile for both tenant
+> ***Note*** Use the same location profile for both tenant, an azure blob container is a object storage
+> on the network (like s3) and can be accessed from another tenant or from your personal laptop.
 
 ## Install the blueprint and the blueprintbinding
 
+### Secret management 
+The blueprint will work with 2 secrets
+- The databse secret app1, app2 or app3 which will provide information about the database name
+and the user 
+- The flexible-super-admin secret in the kasten-io namespace. This secret will be used during :
+  - backup to create a dump of the database 
+  - restore the database, recreate role and permission  
 
-TODO 
+For each tenant create the appropriate flexible-super-admin secret in the kasten-io namespace
+
+```
+kubectl create secret generic flexible-super-admin  \
+   -n kasten-io \
+   --from-literal username=myadmin \
+   --from-literal password='<super-admin password>'
+```
+
+
+### The blueprint binding 
+
+The blueprint binding will bind the any secret that has the label `type: database-credential`
+to the bluepring `flexible-bp`.
+```
+kubectl create -f flexible-bp-binding.yaml
+```
+
+### The blueprint 
+
+```
+kubectl create -f flexible-bp.yaml
+```
+
+You'll notice that the restore action recreate the authorization if the database 
+does not exist yet.
 
 # Backup, Restore, Migrate 
 
-TODO 
+use kasten to backup, restore the secret asociated to each secret, the binding will make
+sure that the blueprint will be executed for each secret. 
+
 

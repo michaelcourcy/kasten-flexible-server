@@ -47,7 +47,7 @@ spec:
         args:
           - |
             while true; do
-              psql -c "INSERT INTO example_table (name) VALUES ('Sample Name');"
+              psql -c "INSERT INTO example_table (name) VALUES ('$PGDATABASE');"
               sleep 10;
             done
       initContainers:
@@ -137,7 +137,7 @@ spec:
         args:
           - |
             while true; do
-              psql -c "INSERT INTO example_table (name) VALUES ('Sample Name');"
+              psql -c "INSERT INTO example_table (name) VALUES ('$PGDATABASE');"
               sleep 10;
             done
       initContainers:
@@ -220,7 +220,7 @@ spec:
         args:
           - |
             while true; do
-              psql -c "INSERT INTO example_table (name) VALUES ('Sample Name');"
+              psql -c "INSERT INTO example_table (name) VALUES ('$PGDATABASE');"
               sleep 10;
             done
       initContainers:

@@ -1,0 +1,20 @@
+apiVersion: config.kio.kasten.io/v1alpha1
+kind: BlueprintBinding
+metadata:
+  name: flexible-bp-binding
+  namespace: kasten-io  
+spec:
+  blueprintRef:
+    name: flexible-bp
+    namespace: kasten-io
+  resources:
+    matchAll:
+    - type:
+        operator: In
+        values:
+        - resource: secrets
+    - labels:
+        key: type
+        operator: In
+        values:
+        - database-credential
