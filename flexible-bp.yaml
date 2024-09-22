@@ -68,19 +68,26 @@ actions:
           export DATABASE_USER='{{ index .Object.data "username" | toString | b64dec }}'
           export DATABASE_PASSWORD='{{ index .Object.data "password" | toString | b64dec }}'
           export PGPORT='5432'
-          if psql -lqt | cut -d \| -f 1 | grep -qw "$PGDATABASE"; then
-            echo "Database $PGDATABASE exists, we just restore."
-          else
-            echo "Database $PGDATABASE does not exist we recreate it first and create authorizations."
-            psql -c "CREATE DATABASE ${PGDATABASE};"
-            psql -c "CREATE ROLE ${DATABASE_USER} WITH LOGIN PASSWORD '${DATABASE_PASSWORD}';"
-            psql -c "GRANT ALL PRIVILEGES ON DATABASE ${PGDATABASE} TO ${DATABASE_USER};"
-            psql -c "GRANT USAGE ON SCHEMA public TO ${DATABASE_USER};"
-            psql -c "GRANT CREATE ON SCHEMA public TO ${DATABASE_USER};"
-          fi
+          
+          # Restore the database as superuser
           backup_file_path="backup.sql"
           kopia_snap='{{ .ArtifactsIn.pgBackup.KopiaSnapshot }}'
           kando location pull --profile '{{ toJson .Profile }}' --path "${backup_file_path}" --kopia-snapshot "${kopia_snap}" - | psql -q 
+          
+          # make sure the role exists and has the correct permissions
+          role_exists=$(psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='${DATABASE_USER}'")
+          if [ "$role_exists" = "1" ]; then
+            echo "Role ${DATABASE_USER} already exists."
+          else
+            echo "Role ${DATABASE_USER} does not exist, creating it."
+            psql -c "CREATE ROLE ${DATABASE_USER} WITH LOGIN PASSWORD '${DATABASE_PASSWORD}';"
+          fi
+          # the grant is idempotent we don't need to check if it's already granted
+          psql -c "GRANT ALL PRIVILEGES ON DATABASE ${PGDATABASE} TO ${DATABASE_USER};"
+          psql -c "GRANT USAGE ON SCHEMA public TO ${DATABASE_USER};"
+          psql -c "GRANT CREATE ON SCHEMA public TO ${DATABASE_USER};"
+          psql -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${DATABASE_USER};"
+          psql -c "GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO ${DATABASE_USER};"
   delete:
     inputArtifactNames:
     # The kopia snapshot info created in backup phase can be used here
