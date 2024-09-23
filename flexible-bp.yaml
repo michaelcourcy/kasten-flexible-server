@@ -64,10 +64,24 @@ actions:
           export PGHOST='rw.poc.postgres.database.azure.com'
           export PGUSER='{{ index .Phases.pgRestore.Secrets.flexibleSecret.Data "username" | toString }}'
           export PGPASSWORD='{{ index .Phases.pgRestore.Secrets.flexibleSecret.Data "password" | toString }}'
-          export PGDATABASE='{{ index .Object.data "dbname" | toString | b64dec }}'
+          # maybe the user database does not exist yet if we are installing on a new environment 
+          # we must use the default postgres database to have the connection working
+          export PGDATABASE='postgres'
+          export DATABASE='{{ index .Object.data "dbname" | toString | b64dec }}'
           export DATABASE_USER='{{ index .Object.data "username" | toString | b64dec }}'
           export DATABASE_PASSWORD='{{ index .Object.data "password" | toString | b64dec }}'
           export PGPORT='5432'
+
+          #Make sure the database exists
+          db_exists=$(psql -tAc "SELECT 1 FROM pg_database WHERE datname='${DATABASE}'")
+          if [ "$db_exists" = "1" ]; then
+            echo "Database ${DATABASE} already exists."
+          else
+            echo "Database ${DATABASE} does not exist, creating it."
+            createdb ${DATABASE}
+          fi
+          # now the database exists we can switch to it 
+          export PGDATABASE=$DATABASE
           
           # Restore the database as superuser
           backup_file_path="backup.sql"
