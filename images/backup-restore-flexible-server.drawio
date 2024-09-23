@@ -117,7 +117,7 @@
         <mxCell id="iPqpEbZTu8c4pnwVvDJN-2" value="vnet&amp;nbsp;" style="swimlane;whiteSpace=wrap;html=1;" parent="iPqpEbZTu8c4pnwVvDJN-1" vertex="1">
           <mxGeometry x="120" y="150" width="640" height="400" as="geometry" />
         </mxCell>
-        <mxCell id="iPqpEbZTu8c4pnwVvDJN-3" value="Postgres flexible server&amp;nbsp;&lt;div&gt;Multiple databases&lt;/div&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/databases/SQL_Server.svg;" parent="iPqpEbZTu8c4pnwVvDJN-2" vertex="1">
+        <mxCell id="iPqpEbZTu8c4pnwVvDJN-3" value="Postgres flexible server&amp;nbsp;&lt;div&gt;Multiple databases&lt;/div&gt;&lt;div&gt;replica&lt;/div&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/databases/SQL_Server.svg;" parent="iPqpEbZTu8c4pnwVvDJN-2" vertex="1">
           <mxGeometry x="530" y="219" width="68" height="68" as="geometry" />
         </mxCell>
         <mxCell id="iPqpEbZTu8c4pnwVvDJN-4" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.022;entryY=0.588;entryDx=0;entryDy=0;entryPerimeter=0;" parent="iPqpEbZTu8c4pnwVvDJN-2" target="LF-GGxsFHxLPk3IsFwMc-0" edge="1">
@@ -227,7 +227,7 @@
         <mxCell id="alUi3gS7hyDzT1EbRRZN-2" value="vnet&amp;nbsp;" style="swimlane;whiteSpace=wrap;html=1;" parent="alUi3gS7hyDzT1EbRRZN-1" vertex="1">
           <mxGeometry x="120" y="150" width="660" height="410" as="geometry" />
         </mxCell>
-        <mxCell id="alUi3gS7hyDzT1EbRRZN-3" value="Postgres flexible server&amp;nbsp;&lt;div&gt;Multiple databases&lt;/div&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/databases/SQL_Server.svg;" parent="alUi3gS7hyDzT1EbRRZN-2" vertex="1">
+        <mxCell id="alUi3gS7hyDzT1EbRRZN-3" value="Postgres flexible server&amp;nbsp;&lt;div&gt;Multiple databases&lt;/div&gt;&lt;div&gt;replica&lt;/div&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/databases/SQL_Server.svg;" parent="alUi3gS7hyDzT1EbRRZN-2" vertex="1">
           <mxGeometry x="530" y="219" width="68" height="68" as="geometry" />
         </mxCell>
         <mxCell id="alUi3gS7hyDzT1EbRRZN-4" value="" style="endArrow=classic;html=1;rounded=0;entryX=0;entryY=0.574;entryDx=0;entryDy=0;entryPerimeter=0;" parent="alUi3gS7hyDzT1EbRRZN-2" edge="1">
@@ -266,9 +266,6 @@
           <mxGeometry x="-0.1035" y="-1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
-        </mxCell>
-        <mxCell id="P8yPD065z_e6H3VmSR3B-4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d80073;strokeColor=#A50040;opacity=60;fontColor=#ffffff;" parent="alUi3gS7hyDzT1EbRRZN-2" vertex="1">
-          <mxGeometry x="-10" width="670" height="410" as="geometry" />
         </mxCell>
         <mxCell id="alUi3gS7hyDzT1EbRRZN-13" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="alUi3gS7hyDzT1EbRRZN-1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -320,10 +317,13 @@
         <mxCell id="alUi3gS7hyDzT1EbRRZN-22" value="Storage account&lt;div&gt;container&amp;nbsp;&amp;nbsp;&lt;div&gt;with version-level immutability&amp;nbsp;&lt;/div&gt;&lt;/div&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/storage/Storage_Accounts.svg;" parent="alUi3gS7hyDzT1EbRRZN-21" vertex="1">
           <mxGeometry x="570" y="450" width="65" height="52" as="geometry" />
         </mxCell>
+        <mxCell id="P8yPD065z_e6H3VmSR3B-4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d80073;strokeColor=#A50040;opacity=60;fontColor=#ffffff;" parent="alUi3gS7hyDzT1EbRRZN-21" vertex="1">
+          <mxGeometry x="30" y="30" width="670" height="410" as="geometry" />
+        </mxCell>
         <mxCell id="uGH6oW2wV56cqDaFSFgl-0" value="vnet&amp;nbsp;" style="swimlane;whiteSpace=wrap;html=1;" parent="alUi3gS7hyDzT1EbRRZN-1" vertex="1">
           <mxGeometry x="120" y="729" width="640" height="400" as="geometry" />
         </mxCell>
-        <mxCell id="uGH6oW2wV56cqDaFSFgl-1" value="Postgres flexible server&amp;nbsp;&lt;div&gt;Multiple databases&lt;/div&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/databases/SQL_Server.svg;" parent="uGH6oW2wV56cqDaFSFgl-0" vertex="1">
+        <mxCell id="uGH6oW2wV56cqDaFSFgl-1" value="Postgres flexible server&amp;nbsp;&lt;div&gt;Multiple databases&lt;/div&gt;&lt;div&gt;replica&lt;/div&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/databases/SQL_Server.svg;" parent="uGH6oW2wV56cqDaFSFgl-0" vertex="1">
           <mxGeometry x="530" y="219" width="68" height="68" as="geometry" />
         </mxCell>
         <mxCell id="uGH6oW2wV56cqDaFSFgl-2" value="" style="endArrow=classic;html=1;rounded=0;" parent="uGH6oW2wV56cqDaFSFgl-0" edge="1">
