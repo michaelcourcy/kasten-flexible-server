@@ -80,6 +80,9 @@ The domain that point to the database will be the same in both tenant because we
 and for this reason we can use the same name. Hence no need to change the blueprint when the tenant 
 change.
 
+If you do not use private dns or if the url to the flexible server is different in the destination 
+tenant you just have to adapt the blueprint in the destination tenant cluster.
+
 # Implementation 
 
 ## Prepare the databases 
