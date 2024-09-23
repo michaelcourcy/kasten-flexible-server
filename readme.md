@@ -88,10 +88,10 @@ We are going to create 3 databases with for each it's own user: app1, app2 and a
 Use your flexible credential to access the rw instance throug a pod
 ```
  az aks get-credentials --resource-group <your resource group> --name <your cluster name>
- kubectl create ns app1
- kubectl config set-context --current --namespace=app1
- kubectl run --image postgres:16.4 pg -- tail -f /dev/null
- kubectl exec -it pg -- bash 
+ kubectl create ns psql
+ kubectl config set-context --current --namespace=psql
+ kubectl run --image postgres:16.4 psql -- tail -f /dev/null
+ kubectl exec -it psql -- bash 
  export PGHOST=rw.poc.postgres.database.azure.com
  export PGUSER=myadmin
  export PGPORT=5432
@@ -221,7 +221,9 @@ does not exist yet.
 
 # Backup, Restore, Migrate 
 
-use kasten to backup, restore the secret asociated to each secret, the binding will make
+Use kasten to backup, restore the secret asociated to each secret, the binding will make
 sure that the blueprint will be executed for each secret. 
+
+You can also experiment partial restore in app2 namespace, for instance onlt restore app3 secret on any restorepoint of your choice.
 
 
